@@ -6,6 +6,7 @@ use warnings;
 use Moo;
 use GraphQL::Type::Library -all;
 use GraphQL::Debug qw(_debug);
+use GraphQL::Util qw(print_description);
 use Types::Standard -all;
 use JSON::MaybeXS qw(JSON is_bool);
 use DateTime::Format::ISO8601;
@@ -116,7 +117,7 @@ sub _build_to_doc {
   my ($self) = @_;
   DEBUG and _debug('Scalar.to_doc', $self);
   join '', map "$_\n",
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "scalar @{[$self->name]}";
 }
 

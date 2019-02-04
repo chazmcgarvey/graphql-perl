@@ -117,9 +117,6 @@ sub make_tree {   # Generated/Inlined by Pegex::Grammar (0.70)
     'boolean' => {
       '.rgx' => qr/\G(true|false)/
     },
-    'comment' => {
-      '.rgx' => qr/\G[\ \t]*\#[\ \t]*([^\r\n]*)(?:\r?\n|\r!NL|\z)/
-    },
     'defaultValue' => {
       '.all' => [
         {
@@ -157,15 +154,7 @@ sub make_tree {   # Generated/Inlined by Pegex::Grammar (0.70)
               '.rgx' => qr/\G[\s\n]*/
             },
             {
-              '.any' => [
-                {
-                  '+min' => 1,
-                  '.ref' => 'comment'
-                },
-                {
-                  '.ref' => 'string'
-                }
-              ]
+              '.ref' => 'string'
             },
             {
               '-skip' => 1,

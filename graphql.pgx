@@ -147,7 +147,7 @@ ws: / (: WS | \x{FEFF} | COMMA | comment ) /
 
 comment: / BLANK* HASH BLANK* ([^\r\n]*) (: EOL | CR !NL | EOS ) / # CR is because MacOS 9
 
-description: .(/ [ WS NL ]* /) ( comment+ | string ) .(/ [ WS NL ]* /) | .(-)
+description: .(/ [ WS NL ]* /) (string) .(/ [ WS NL ]* /) | .(-)
 
 typeSystemDefinition: description? (schema | typeDefinition | typeExtensionDefinition | directive)
 

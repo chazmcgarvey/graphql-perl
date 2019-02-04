@@ -7,6 +7,7 @@ use Moo;
 use GraphQL::Debug qw(_debug);
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
+use GraphQL::Util qw(print_description);
 use MooX::Thunking;
 use Function::Parameters;
 use Return::Type;
@@ -85,7 +86,7 @@ sub _build_to_doc {
   my $implements = join ', ', map $_->name, @{ $self->interfaces || [] };
   $implements &&= 'implements ' . $implements . ' ';
   join '', map "$_\n",
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "type @{[$self->name]} $implements\{",
       (map "  $_", @fieldlines),
     "}";

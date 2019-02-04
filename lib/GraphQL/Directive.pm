@@ -10,6 +10,7 @@ use GraphQL::Debug qw(_debug);
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use GraphQL::Type::Scalar qw($Boolean $String);
+use GraphQL::Util qw(print_description);
 with qw(
   GraphQL::Role::Named
   GraphQL::Role::FieldsEither
@@ -117,7 +118,7 @@ sub _build_to_doc {
   my ($self) = @_;
   DEBUG and _debug('Directive.to_doc', $self);
   my @start = (
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "directive \@@{[$self->name]}(",
   );
   my @argtuples = $self->_make_fieldtuples($self->args);

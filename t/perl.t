@@ -23,7 +23,7 @@ EOF
       my ($root_value, $args, $context, $info) = @_;
       my $field_name = $info->{field_name};
       my $property = ref($root_value) eq 'HASH'
-        ? $root_value->{$field_name} 
+        ? $root_value->{$field_name}
         : $root_value;
       return $property->($args, $context, $info) if ref $property eq 'CODE';
       return $root_value->$field_name if ref $property; # no args
@@ -79,9 +79,11 @@ subtest 'test convert plugin' => sub {
 subtest 'multi-line description' => sub {
   my $doc = <<'EOF';
 type Query {
-  # first line
-  #
-  # second bit
+  """
+  first line
+  
+  second bit
+  """
   hello: String
 }
 EOF

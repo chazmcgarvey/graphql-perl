@@ -10,6 +10,7 @@ use GraphQL::Type::Library -all;
 use Return::Type;
 use Function::Parameters;
 use GraphQL::Debug qw(_debug);
+use GraphQL::Util qw(print_description);
 extends qw(GraphQL::Type);
 with qw(
   GraphQL::Role::Output
@@ -104,7 +105,7 @@ sub _build_to_doc {
   my ($self) = @_;
   DEBUG and _debug('Union.to_doc', $self);
   join '', map "$_\n",
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "union @{[$self->name]} = " . join(' | ', map $_->name, @{$self->{types}});
 }
 

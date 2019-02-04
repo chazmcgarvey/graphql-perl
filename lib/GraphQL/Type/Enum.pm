@@ -7,6 +7,7 @@ use Moo;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use GraphQL::Debug qw(_debug);
+use GraphQL::Util qw(print_description);
 use Function::Parameters;
 use Return::Type;
 extends qw(GraphQL::Type);
@@ -153,12 +154,12 @@ sub _build_to_doc {
   my $v = $self->values;
   my @valuelines = map {
     (
-      ($v->{$_}{description} ? ("# $v->{$_}{description}") : ()),
+      print_description($v->{$_}{description}),
       $self->_to_doc_field_deprecate($_, $v->{$_}),
     )
   } sort keys %$v;
   join '', map "$_\n",
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "enum @{[$self->name]} {",
       (map "  $_", @valuelines),
     "}";

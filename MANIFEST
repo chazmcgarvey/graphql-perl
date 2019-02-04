@@ -38,6 +38,7 @@ lib/GraphQL/Type/NonNull.pm
 lib/GraphQL/Type/Object.pm
 lib/GraphQL/Type/Scalar.pm
 lib/GraphQL/Type/Union.pm
+lib/GraphQL/Util.pm
 lib/GraphQL/Validation.pm
 Makefile.PL
 MANIFEST			This list of files

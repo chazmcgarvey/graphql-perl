@@ -7,6 +7,7 @@ use Moo;
 use Types::Standard -all;
 use Function::Parameters;
 use Return::Type;
+use GraphQL::Util qw(print_description);
 extends qw(GraphQL::Type);
 with qw(
   GraphQL::Role::Output
@@ -72,7 +73,7 @@ sub _build_to_doc {
     )
   } $self->_make_fieldtuples($self->fields);
   join '', map "$_\n",
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "interface @{[$self->name]} {",
       (map "  $_", @fieldlines),
     "}";

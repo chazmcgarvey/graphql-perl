@@ -9,6 +9,7 @@ use GraphQL::Type::Library -all;
 use Function::Parameters;
 use Return::Type;
 use GraphQL::Debug qw(_debug);
+use GraphQL::Util qw(print_description);
 extends qw(GraphQL::Type);
 with qw(
   GraphQL::Role::Input
@@ -105,7 +106,7 @@ sub _build_to_doc {
     )
   } $self->_make_fieldtuples($self->fields);
   join '', map "$_\n",
-    ($self->description ? (map "# $_", split /\n/, $self->description) : ()),
+    print_description($self->description),
     "input @{[$self->name]} {",
       (map "  $_", @fieldlines),
     "}";

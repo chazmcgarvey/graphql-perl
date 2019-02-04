@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Moo::Role;
 use GraphQL::Debug qw(_debug);
+use GraphQL::Util qw(print_description);
 use Types::Standard -all;
 use Function::Parameters;
 use JSON::MaybeXS;
@@ -87,9 +88,7 @@ method _make_fieldtuples(
     ) if exists $field->{default_value};
     [
       $self->_to_doc_field_deprecate($line, $field),
-      $field->{description}
-        ? map { length() ? "# $_" : "#" } split /\n/, $field->{description}
-        : (),
+      print_description($field->{description}),
     ]
   } sort keys %$fields;
 }
