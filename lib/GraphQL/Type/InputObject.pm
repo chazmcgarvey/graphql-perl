@@ -7,7 +7,6 @@ use Moo;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use Function::Parameters;
-use Return::Type;
 use GraphQL::Debug qw(_debug);
 extends qw(GraphQL::Type);
 with qw(
@@ -47,7 +46,7 @@ True if given Perl hash-ref is a valid value for this type.
 
 =cut
 
-method is_valid(Maybe[HashRef] $item) :ReturnType(Bool) {
+method is_valid($item) {
   return 1 if !defined $item;
   my $fields = $self->fields;
   return if grep !$fields->{$_}{type}->is_valid(
@@ -63,7 +62,7 @@ default values.
 
 =cut
 
-method uplift(Maybe[HashRef] $item) :ReturnType(Maybe[HashRef]) {
+method uplift($item) {
   return $item if !defined $item;
   my $fields = $self->fields;
   $self->hashmap($item, $fields, sub {
@@ -74,7 +73,7 @@ method uplift(Maybe[HashRef] $item) :ReturnType(Maybe[HashRef]) {
   });
 }
 
-method graphql_to_perl(ExpectObject $item) :ReturnType(Maybe[HashRef]) {
+method graphql_to_perl($item) {
   return $item if !defined $item;
   $item = $self->uplift($item);
   my $fields = $self->fields;
@@ -84,9 +83,9 @@ method graphql_to_perl(ExpectObject $item) :ReturnType(Maybe[HashRef]) {
 }
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   $self->new(
     $self->_from_ast_named($ast_node),
     $self->_from_ast_fields($name2type, $ast_node, 'fields'),

@@ -6,7 +6,6 @@ use warnings;
 use Moo;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
-use Return::Type;
 use Function::Parameters;
 use GraphQL::Debug qw(_debug);
 use GraphQL::Directive;
@@ -120,9 +119,9 @@ In this schema, get all of either the implementation types
 =cut
 
 fun _expand_type(
-  (Map[StrNameValid, ConsumerOf['GraphQL::Role::Named']]) $map,
-  (InstanceOf['GraphQL::Type']) $type,
-) :ReturnType(ArrayRef[ConsumerOf['GraphQL::Role::Named']]) {
+  $map,
+  $type,
+) {
   return _expand_type($map, $type->of) if $type->can('of');
   my $name = $type->name if $type->can('name');
   return [] if $name and $map->{$name} and $map->{$name} == $type; # seen
@@ -159,8 +158,8 @@ sub _build__interface2types {
 }
 
 method get_possible_types(
-  (ConsumerOf['GraphQL::Role::Abstract']) $abstract_type
-) :ReturnType(ArrayRef[InstanceOf['GraphQL::Type::Object']]) {
+  $abstract_type
+) {
   return $abstract_type->get_types if $abstract_type->isa('GraphQL::Type::Union');
   $self->_interface2types->{$abstract_type->name} || [];
 }
@@ -174,9 +173,9 @@ In this schema, is the given C<$possible_type> either an implementation
 
 has _possible_type_map => (is => 'rw', isa => Map[StrNameValid, Map[StrNameValid, Bool]]);
 method is_possible_type(
-  (ConsumerOf['GraphQL::Role::Abstract']) $abstract_type,
-  (InstanceOf['GraphQL::Type::Object']) $possible_type,
-) :ReturnType(Bool) {
+  $abstract_type,
+  $possible_type,
+) {
   my $map = $self->_possible_type_map || {};
   return $map->{$abstract_type->name}{$possible_type->name}
     if $map->{$abstract_type->name}; # we know about the abstract_type
@@ -199,8 +198,8 @@ not, throw exception.
 =cut
 
 method assert_object_implements_interface(
-  (ConsumerOf['GraphQL::Role::Abstract']) $abstract_type,
-  (InstanceOf['GraphQL::Type::Object']) $possible_type,
+  $abstract_type,
+  $possible_type,
 ) {
   my @types = @{ $self->types };
   return;
@@ -237,9 +236,9 @@ our %KIND2CLASS = qw(
 );
 my %CLASS2KIND = reverse %KIND2CLASS;
 method from_ast(
-  ArrayRef[HashRef] $ast,
-  HashRef $kind2class = \%KIND2CLASS,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $ast,
+  $kind2class = \%KIND2CLASS,
+) {
   DEBUG and _debug('Schema.from_ast', $ast);
   my @type_nodes = grep $kind2class->{$_->{kind}}, @$ast;
   my ($schema_node, $e) = grep $_->{kind} eq 'schema', @$ast;
@@ -287,8 +286,8 @@ new-style string values, as field or type descriptions.
 =cut
 
 method from_doc(
-  Str $doc,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $doc,
+) {
   $self->from_ast(parse($doc));
 }
 
@@ -359,9 +358,9 @@ or C<non_null>) called, and that will be returned.
 =cut
 
 fun lookup_type(
-  HashRef $typedef,
-  (Map[StrNameValid, InstanceOf['GraphQL::Type']]) $name2type,
-) :ReturnType(InstanceOf['GraphQL::Type']) {
+  $typedef,
+  $name2type,
+) {
   my $type = $typedef->{type};
   die "Undefined type given\n" if !defined $type;
   return $name2type->{$type} // die "Unknown type '$type'.\n"

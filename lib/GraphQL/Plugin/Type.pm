@@ -66,7 +66,7 @@ otherwise dies.
 =cut
 
 my @registered;
-method register((InstanceOf['GraphQL::Type']) $type) {
+method register($type) {
   push @registered, $type;
 }
 

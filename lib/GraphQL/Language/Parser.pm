@@ -5,7 +5,6 @@ use strict;
 use warnings;
 use base qw(Pegex::Parser);
 use Exporter 'import';
-use Return::Type;
 use Types::Standard -all;
 use Function::Parameters;
 use GraphQL::Language::Grammar;
@@ -47,9 +46,9 @@ method. This achieves hiding of Pegex implementation details.
 
 my $GRAMMAR = GraphQL::Language::Grammar->new; # singleton
 fun parse(
-  Str $source,
-  Bool $noLocation = undef,
-) :ReturnType(ArrayRef[HashRef]) {
+  $source,
+  $noLocation = undef,
+) {
   my $parser = __PACKAGE__->SUPER::new(
     grammar => $GRAMMAR,
     receiver => GraphQL::Language::Receiver->new,
@@ -64,7 +63,7 @@ Override of parent method. Returns a L<GraphQL::Error>.
 
 =cut
 
-sub format_error :ReturnType(InstanceOf['GraphQL::Error']) {
+sub format_error {
     my ($self, $msg) = @_;
     my $buffer = $self->{buffer};
     my $position = $self->{farthest};

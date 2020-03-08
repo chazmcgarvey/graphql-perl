@@ -6,7 +6,6 @@ use warnings;
 use Moo;
 use Types::Standard -all;
 use Function::Parameters;
-use Return::Type;
 extends qw(GraphQL::Type);
 with qw(
   GraphQL::Role::Output
@@ -51,9 +50,9 @@ Optional code-ref to resolve types.
 has resolve_type => (is => 'ro', isa => CodeRef);
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   $self->new(
     $self->_from_ast_named($ast_node),
     $self->_from_ast_fields($name2type, $ast_node, 'fields'),

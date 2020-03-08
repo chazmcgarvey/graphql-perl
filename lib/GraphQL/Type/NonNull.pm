@@ -6,7 +6,6 @@ use warnings;
 use Moo;
 use Types::Standard -all;
 use Function::Parameters;
-use Return::Type;
 extends qw(GraphQL::Type);
 
 our $VERSION = '0.02';
@@ -76,12 +75,12 @@ True if given Perl value is a valid value for this type.
 
 =cut
 
-method is_valid(Any $item) :ReturnType(Bool) {
+method is_valid($item) {
   return if !defined $item or !$self->of->is_valid($item);
   1;
 }
 
-method graphql_to_perl(Any $item) :ReturnType(Any) {
+method graphql_to_perl($item) {
   my $of = $self->of;
   $of->graphql_to_perl($item) // die $self->to_string . " given null value.\n";
 }

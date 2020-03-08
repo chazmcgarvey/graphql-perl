@@ -42,8 +42,8 @@ sub _fields_deprecation_apply {
 };
 
 method _from_ast_field_deprecate(
-  Str $key,
-  HashRef $values,
+  $key,
+  $values,
 ) {
   my $value = +{ %{$values->{$key}} };
   my $directives = delete $value->{directives}; # ok as copy
@@ -59,8 +59,8 @@ method _from_ast_field_deprecate(
 }
 
 method _to_doc_field_deprecate(
-  Str $line,
-  HashRef $value,
+  $line,
+  $value,
 ) {
   return $line if !$value->{is_deprecated};
   $line .= ' @deprecated';

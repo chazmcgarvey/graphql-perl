@@ -101,9 +101,9 @@ See L<GraphQL::Type/from_ast>.
 =cut
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   DEBUG and _debug('Directive.from_ast', $ast_node);
   $self->new(
     $self->_from_ast_named($ast_node),
@@ -213,8 +213,8 @@ in your schema:
 );
 
 method _get_directive_values(
-  HashRef $node,
-  HashRef $variables,
+  $node,
+  $variables,
 ) {
   DEBUG and _debug('_get_directive_values', $self->name, $node, $variables);
   my ($d) = grep $_->{name} eq $self->name, @{$node->{directives} || []};

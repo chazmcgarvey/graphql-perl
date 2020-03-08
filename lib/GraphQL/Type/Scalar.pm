@@ -19,7 +19,6 @@ with qw(
   GraphQL::Role::FieldsEither
 );
 use Function::Parameters;
-use Return::Type;
 use GraphQL::Plugin::Type;
 
 our $VERSION = '0.02';
@@ -86,23 +85,23 @@ attribute.
 
 =cut
 
-method is_valid(Any $item) :ReturnType(Bool) {
+method is_valid($item) {
   return 1 if !defined $item;
   eval { $self->serialize->($item); 1 };
 }
 
-method graphql_to_perl(Any $item) :ReturnType(Any) {
+method graphql_to_perl($item) {
   $self->parse_value->($item);
 }
 
-method perl_to_graphql(Any $item) :ReturnType(Any) {
+method perl_to_graphql($item) {
   $self->serialize->($item);
 }
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   DEBUG and _debug('Scalar.from_ast', $ast_node);
   $self->new(
     $self->_from_ast_named($ast_node),

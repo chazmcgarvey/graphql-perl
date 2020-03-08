@@ -9,7 +9,6 @@ use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use MooX::Thunking;
 use Function::Parameters;
-use Return::Type;
 extends qw(GraphQL::Type);
 with qw(
   GraphQL::Role::Output
@@ -59,7 +58,7 @@ and resolve-info hash-ref.
 
 has is_type_of => (is => 'ro', isa => CodeRef);
 
-method graphql_to_perl(Maybe[HashRef] $item) :ReturnType(Maybe[HashRef]) {
+method graphql_to_perl($item) {
   return $item if !defined $item;
   $item = $self->uplift($item);
   my $fields = $self->fields;
@@ -92,9 +91,9 @@ sub _build_to_doc {
 }
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   $self->new(
     $self->_from_ast_named($ast_node),
     $self->_from_ast_maptype($name2type, $ast_node, 'interfaces'),
@@ -103,10 +102,10 @@ method from_ast(
 }
 
 method _collect_fields(
-  HashRef $context,
-  ArrayRef $selections,
-  Map[StrNameValid,ArrayRef[HashRef]] $fields_got,
-  Map[StrNameValid,Bool] $visited_fragments,
+  $context,
+  $selections,
+  $fields_got,
+  $visited_fragments,
 ) {
   DEBUG and _debug('_collect_fields', $self->to_string, $fields_got, $selections);
   for my $selection (@$selections) {
@@ -146,9 +145,9 @@ method _collect_fields(
 }
 
 method _fragment_condition_match(
-  HashRef $context,
-  HashRef $node,
-) :ReturnType(Bool) {
+  $context,
+  $node,
+) {
   DEBUG and _debug('_fragment_condition_match', $self->to_string, $node);
   return 1 if !$node->{on};
   return 1 if $node->{on} eq $self->name;
@@ -161,9 +160,9 @@ method _fragment_condition_match(
 }
 
 fun _should_include_node(
-  HashRef $variables,
-  HashRef $node,
-) :ReturnType(Bool) {
+  $variables,
+  $node,
+) {
   DEBUG and _debug('_should_include_node', $variables, $node);
   my $skip = $GraphQL::Directive::SKIP->_get_directive_values($node, $variables);
   return '' if $skip and $skip->{if};
@@ -173,11 +172,11 @@ fun _should_include_node(
 }
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  Any $result,
+  $context,
+  $nodes,
+  $info,
+  $path,
+  $result,
 ) {
   if ($self->is_type_of) {
     my $is_type_of = $self->is_type_of->($result, $context->{context_value}, $info);

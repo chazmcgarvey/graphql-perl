@@ -32,9 +32,9 @@ Provides code useful to either type of fields.
 =cut
 
 method _make_field_def(
-  HashRef $name2type,
-  Str $field_name,
-  HashRef $field_def,
+  $name2type,
+  $field_name,
+  $field_def,
 ) {
   DEBUG and _debug('FieldsEither._make_field_def', $field_def);
   require GraphQL::Schema;
@@ -51,9 +51,9 @@ method _make_field_def(
 }
 
 method _from_ast_fields(
-  HashRef $name2type,
-  HashRef $ast_node,
-  Str $key,
+  $name2type,
+  $ast_node,
+  $key,
 ) {
   my $fields = $ast_node->{$key};
   $fields = $self->_from_ast_field_deprecate($_, $fields) for keys %$fields;
@@ -71,7 +71,7 @@ method _from_ast_fields(
 }
 
 method _description_doc_lines(
-  Maybe[Str] $description,
+  $description,
 ) {
   DEBUG and _debug('FieldsEither._description_doc_lines', $description);
   return if !$description;
@@ -89,7 +89,7 @@ method _description_doc_lines(
 }
 
 method _make_fieldtuples(
-  HashRef $fields,
+  $fields,
 ) {
   DEBUG and _debug('FieldsEither._make_fieldtuples', $fields);
   map {

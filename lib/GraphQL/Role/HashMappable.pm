@@ -6,7 +6,6 @@ use warnings;
 use Moo::Role;
 use Types::Standard -all;
 use Function::Parameters;
-use Return::Type;
 
 our $VERSION = '0.02';
 
@@ -57,7 +56,7 @@ about which data element caused it.
 
 =cut
 
-method hashmap(Maybe[HashRef] $item, HashRef $source, CodeRef $code) :ReturnType(Maybe[HashRef]) {
+method hashmap($item, $source, $code) {
   return $item if !defined $item;
   my @errors = map qq{In field "$_": Unknown field.\n}, grep !exists $source->{$_}, sort keys %$item;
   my %newvalue = map {

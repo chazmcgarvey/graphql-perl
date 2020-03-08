@@ -8,7 +8,6 @@ use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use GraphQL::Debug qw(_debug);
 use Function::Parameters;
-use Return::Type;
 extends qw(GraphQL::Type);
 with qw(
   GraphQL::Role::Input
@@ -103,19 +102,19 @@ sub _build__value2name {
   +{ reverse %$n2v };
 }
 
-method is_valid(Any $item) :ReturnType(Bool) {
+method is_valid($item) {
   DEBUG and _debug('is_valid', $item, $item.'', $self->_value2name);
   return 1 if !defined $item;
   !!$self->_value2name->{$item};
 }
 
-method graphql_to_perl(Maybe[Str] $item) {
+method graphql_to_perl($item) {
   DEBUG and _debug('graphql_to_perl', $item, $self->_name2value);
   return undef if !defined $item;
   $self->_name2value->{$item} // die "Expected type '@{[$self->to_string]}', found $item.\n";
 }
 
-method perl_to_graphql(Any $item) {
+method perl_to_graphql($item) {
   DEBUG and _debug('graphql_to_perl', $item, $self->_value2name);
   return undef if !defined $item;
   $self->_value2name->{$item} // die "Expected a value of type '@{[$self->to_string]}' but received: @{[ref($item)||qq{'$item'}]}.\n";
@@ -137,9 +136,9 @@ sub BUILD {
 }
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   my $values = +{ %{$ast_node->{values}} };
   $values = $self->_from_ast_field_deprecate($_, $values) for keys %$values;
   $self->new(

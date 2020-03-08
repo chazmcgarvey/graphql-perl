@@ -6,7 +6,6 @@ use warnings;
 use Moo;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
-use Return::Type;
 use Function::Parameters;
 use GraphQL::Debug qw(_debug);
 
@@ -79,7 +78,7 @@ Is the supplied scalar an error object?
 
 =cut
 
-method is(Any $item) :ReturnType(Bool) { ref $item eq __PACKAGE__ }
+method is($item) { ref $item eq __PACKAGE__ }
 
 =head2 coerce
 
@@ -90,8 +89,8 @@ it will be preserved as C<original_error>.
 =cut
 
 method coerce(
-  Any $item
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $item
+) {
   DEBUG and _debug('Error.coerce', $item);
   return $item if __PACKAGE__->is($item);
   $item ||= 'Unknown error';
@@ -107,7 +106,7 @@ with a C<new> method, not coincidentally) overriding the existing ones.
 
 =cut
 
-sub but :ReturnType(InstanceOf[__PACKAGE__]) {
+sub but {
   my $self = shift;
   $self->new(%$self, @_);
 }
@@ -118,7 +117,7 @@ Converts to string.
 
 =cut
 
-method to_string(@ignore) :ReturnType(Str) {
+method to_string(@ignore) {
   $self->message;
 }
 
@@ -129,7 +128,7 @@ the C<errors> array in the results.
 
 =cut
 
-method to_json() :ReturnType(HashRef) {
+method to_json() {
   +{ map { ($_ => $self->{$_}) } grep !$NONENUM{$_}, keys %$self };
 }
 

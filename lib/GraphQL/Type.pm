@@ -4,7 +4,6 @@ use 5.014;
 use strict;
 use warnings;
 use Moo;
-use Return::Type;
 use Function::Parameters;
 use Types::Standard qw(InstanceOf Any HashRef Str); # if -all causes objects to be class 'Object'!
 with 'GraphQL::Role::Listable';
@@ -111,7 +110,7 @@ Turn given Perl entity into valid Perl value for this type if possible.
 
 =cut
 
-method uplift(Any $item) :ReturnType(Any) { $item; }
+method uplift($item) { $item; }
 
 =head2 graphql_to_perl
 
@@ -137,9 +136,9 @@ object.
 =cut
 
 method _from_ast_maptype(
-  HashRef $name2type,
-  HashRef $ast_node,
-  Str $key,
+  $name2type,
+  $ast_node,
+  $key,
 ) {
   return if !$ast_node->{$key};
   ($key => sub { [

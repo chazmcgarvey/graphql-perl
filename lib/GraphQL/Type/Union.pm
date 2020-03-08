@@ -7,7 +7,6 @@ use Moo;
 use MooX::Thunking;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
-use Return::Type;
 use Function::Parameters;
 use GraphQL::Debug qw(_debug);
 extends qw(GraphQL::Type);
@@ -75,7 +74,7 @@ performing validation.
 =cut
 
 has _types_validated => (is => 'rw', isa => Bool);
-method get_types() :ReturnType(ArrayRefNonEmpty[InstanceOf['GraphQL::Type::Object']]) {
+method get_types() {
   my @types = @{ $self->types };
   DEBUG and _debug('Union.get_types', $self->name, \@types);
   return \@types if $self->_types_validated; # only do once
@@ -88,9 +87,9 @@ method get_types() :ReturnType(ArrayRefNonEmpty[InstanceOf['GraphQL::Type::Objec
 }
 
 method from_ast(
-  HashRef $name2type,
-  HashRef $ast_node,
-) :ReturnType(InstanceOf[__PACKAGE__]) {
+  $name2type,
+  $ast_node,
+) {
   DEBUG and _debug('Union.from_ast', $ast_node);
   $self->new(
     $self->_from_ast_named($ast_node),

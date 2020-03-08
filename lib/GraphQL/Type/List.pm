@@ -7,7 +7,6 @@ use Moo;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use Function::Parameters;
-use Return::Type;
 use GraphQL::Debug qw(_debug);
 extends qw(GraphQL::Type);
 with qw(GraphQL::Role::Nullable);
@@ -82,7 +81,7 @@ True if given Perl array-ref is a valid value for this type.
 
 =cut
 
-method is_valid(Any $item) :ReturnType(Bool) {
+method is_valid($item) {
   return 1 if !defined $item;
   my $of = $self->of;
   return if grep !$of->is_valid($_), @{ $self->uplift($item) };
@@ -97,12 +96,12 @@ Mainly to promote single value into a list if type dictates.
 =cut
 
 # This is a crime against God. graphql-js does it however.
-method uplift(Any $item) :ReturnType(Any) {
+method uplift($item) {
   return $item if ref($item) eq 'ARRAY' or !defined $item;
   [ $item ];
 }
 
-method graphql_to_perl(Any $item) :ReturnType(Maybe[ArrayRef]) {
+method graphql_to_perl($item) {
   return $item if !defined $item;
   $item = $self->uplift($item);
   my $of = $self->of;
@@ -119,11 +118,11 @@ method graphql_to_perl(Any $item) :ReturnType(Maybe[ArrayRef]) {
 }
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  ArrayRef $result,
+  $context,
+  $nodes,
+  $info,
+  $path,
+  $result,
 ) {
   # TODO promise stuff
   my $item_type = $self->of;
@@ -144,8 +143,8 @@ method _complete_value(
 }
 
 fun _merge_list(
-  ArrayRef[ExecutionPartialResult] $list,
-) :ReturnType(ExecutionPartialResult) {
+  $list,
+) {
   DEBUG and _debug("List._merge_list", $list);
   my @errors = map @{ $_->{errors} || [] }, @$list;
   my @data = map $_->{data}, @$list;
@@ -154,9 +153,9 @@ fun _merge_list(
 }
 
 fun _promise_for_list(
-  HashRef $context,
-  ArrayRef $list,
-) :ReturnType(Promise) {
+  $context,
+  $list,
+) {
   DEBUG and _debug('_promise_for_list', $list);
   die "Given a promise in list but no PromiseCode given\n"
     if !$context->{promise_code};

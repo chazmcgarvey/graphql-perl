@@ -5,8 +5,6 @@ use strict;
 use warnings;
 use Moo::Role;
 use Function::Parameters;
-use Return::Type;
-use Types::Standard -all;
 use GraphQL::Debug qw(_debug);
 
 our $VERSION = '0.02';
@@ -30,11 +28,11 @@ Allows type constraints for leaf objects.
 =cut
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  Any $result,
+  $context,
+  $nodes,
+  $info,
+  $path,
+  $result,
 ) {
   DEBUG and _debug('Leaf._complete_value', $self->to_string, $result);
   my $serialised = $self->perl_to_graphql($result);
