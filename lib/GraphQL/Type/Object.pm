@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Moo;
 use GraphQL::Debug qw(_debug);
+use Devel::StrictMode;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use MooX::Thunking;
@@ -103,10 +104,10 @@ method from_ast(
 }
 
 method _collect_fields(
-  HashRef $context,
-  ArrayRef $selections,
-  Map[StrNameValid,ArrayRef[HashRef]] $fields_got,
-  Map[StrNameValid,Bool] $visited_fragments,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef : Any) $selections,
+  (STRICT ? Map[StrNameValid,ArrayRef[HashRef]] : Any) $fields_got,
+  (STRICT ? Map[StrNameValid,Bool] : Any) $visited_fragments,
 ) {
   DEBUG and _debug('_collect_fields', $self->to_string, $fields_got, $selections);
   for my $selection (@$selections) {
@@ -146,8 +147,8 @@ method _collect_fields(
 }
 
 method _fragment_condition_match(
-  HashRef $context,
-  HashRef $node,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? HashRef : Any) $node,
 ) :ReturnType(Bool) {
   DEBUG and _debug('_fragment_condition_match', $self->to_string, $node);
   return 1 if !$node->{on};
@@ -161,8 +162,8 @@ method _fragment_condition_match(
 }
 
 fun _should_include_node(
-  HashRef $variables,
-  HashRef $node,
+  (STRICT ? HashRef : Any) $variables,
+  (STRICT ? HashRef : Any) $node,
 ) :ReturnType(Bool) {
   DEBUG and _debug('_should_include_node', $variables, $node);
   my $skip = $GraphQL::Directive::SKIP->_get_directive_values($node, $variables);
@@ -173,10 +174,10 @@ fun _should_include_node(
 }
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
+  (STRICT ? HashRef : Any) $info,
+  (STRICT ? ArrayRef : Any) $path,
   Any $result,
 ) {
   if ($self->is_type_of) {

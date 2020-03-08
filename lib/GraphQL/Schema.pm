@@ -4,6 +4,7 @@ use 5.014;
 use strict;
 use warnings;
 use Moo;
+use Devel::StrictMode;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use Return::Type;
@@ -120,9 +121,9 @@ In this schema, get all of either the implementation types
 =cut
 
 fun _expand_type(
-  (Map[StrNameValid, ConsumerOf['GraphQL::Role::Named']]) $map,
-  (InstanceOf['GraphQL::Type']) $type,
-) :ReturnType(ArrayRef[ConsumerOf['GraphQL::Role::Named']]) {
+  (STRICT ? (Map[StrNameValid, ConsumerOf['GraphQL::Role::Named']]) : Any) $map,
+  (STRICT ? InstanceOf['GraphQL::Type'] : Any) $type,
+) :ReturnType(STRICT ? ArrayRef[ConsumerOf['GraphQL::Role::Named']] : Any) {
   return _expand_type($map, $type->of) if $type->can('of');
   my $name = $type->name if $type->can('name');
   return [] if $name and $map->{$name} and $map->{$name} == $type; # seen

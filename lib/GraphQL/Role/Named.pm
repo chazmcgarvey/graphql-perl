@@ -4,6 +4,7 @@ use 5.014;
 use strict;
 use warnings;
 use Moo::Role;
+use Devel::StrictMode;
 use Types::Standard -all;
 use Function::Parameters;
 use GraphQL::Type::Library qw(StrNameValid);
@@ -53,7 +54,7 @@ has to_string => (is => 'lazy', isa => Str, init_arg => undef, builder => sub {
 });
 
 method _from_ast_named(
-  HashRef $ast_node,
+  (STRICT ? HashRef : Any) $ast_node,
 ) {
   (
     name => $ast_node->{name},

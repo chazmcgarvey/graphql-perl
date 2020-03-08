@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Moo::Role;
 use Function::Parameters;
+use Devel::StrictMode;
 use Return::Type;
 use Types::Standard -all;
 
@@ -28,10 +29,10 @@ Allows type constraints for abstract objects.
 =cut
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
+  (STRICT ? HashRef : Any) $info,
+  (STRICT ? ArrayRef : Any) $path,
   Any $result,
 ) {
   my $runtime_type = ($self->resolve_type || \&_default_resolve_type)->(
@@ -48,12 +49,12 @@ method _complete_value(
 }
 
 method _ensure_valid_runtime_type(
-  (Str | InstanceOf['GraphQL::Type::Object']) $runtime_type_or_name,
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
+  (STRICT ? (Str | InstanceOf['GraphQL::Type::Object']) : Any) $runtime_type_or_name,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
+  (STRICT ? HashRef : Any) $info,
   Any $result,
-) :ReturnType(InstanceOf['GraphQL::Type::Object']) {
+) :ReturnType(STRICT ? InstanceOf['GraphQL::Type::Object'] : Any) {
   my $runtime_type = is_InstanceOf($runtime_type_or_name)
     ? $runtime_type_or_name
     : $context->{schema}->name2type->{$runtime_type_or_name};
@@ -74,8 +75,8 @@ method _ensure_valid_runtime_type(
 fun _default_resolve_type(
   Any $value,
   Any $context,
-  HashRef $info,
-  (ConsumerOf['GraphQL::Role::Abstract']) $abstract_type,
+  (STRICT ? HashRef : Any) $info,
+  (STRICT ? ConsumerOf['GraphQL::Role::Abstract'] : Any) $abstract_type,
 ) {
   my @possibles = @{ $info->{schema}->get_possible_types($abstract_type) };
   # TODO promise stuff

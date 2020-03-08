@@ -4,6 +4,7 @@ use 5.014;
 use strict;
 use warnings;
 use Moo;
+use Devel::StrictMode;
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use Function::Parameters;
@@ -119,11 +120,11 @@ method graphql_to_perl(Any $item) :ReturnType(Maybe[ArrayRef]) {
 }
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  ArrayRef $result,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
+  (STRICT ? HashRef : Any) $info,
+  (STRICT ? ArrayRef : Any) $path,
+  (STRICT ? ArrayRef : Any) $result,
 ) {
   # TODO promise stuff
   my $item_type = $self->of;
@@ -144,8 +145,8 @@ method _complete_value(
 }
 
 fun _merge_list(
-  ArrayRef[ExecutionPartialResult] $list,
-) :ReturnType(ExecutionPartialResult) {
+  (STRICT ? ArrayRef[ExecutionPartialResult] : Any) $list,
+) :ReturnType(STRICT ? ExecutionPartialResult : Any) {
   DEBUG and _debug("List._merge_list", $list);
   my @errors = map @{ $_->{errors} || [] }, @$list;
   my @data = map $_->{data}, @$list;
@@ -154,9 +155,9 @@ fun _merge_list(
 }
 
 fun _promise_for_list(
-  HashRef $context,
-  ArrayRef $list,
-) :ReturnType(Promise) {
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef : Any) $list,
+) :ReturnType(STRICT ? Promise : Any) {
   DEBUG and _debug('_promise_for_list', $list);
   die "Given a promise in list but no PromiseCode given\n"
     if !$context->{promise_code};

@@ -20,6 +20,7 @@ WriteMakefile(
     'Import::Into' => '0',
   },
   PREREQ_PM => {
+    'Devel::StrictMode' => '0',
     'Moo' => '0',
     'Type::Tiny' => '0',
     'Module::Runtime' => '0',

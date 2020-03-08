@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Moo::Role;
 use Function::Parameters;
+use Devel::StrictMode;
 use Return::Type;
 use Types::Standard -all;
 use GraphQL::Debug qw(_debug);
@@ -30,10 +31,10 @@ Allows type constraints for leaf objects.
 =cut
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
+  (STRICT ? HashRef : Any) $context,
+  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
+  (STRICT ? HashRef : Any) $info,
+  (STRICT ? ArrayRef : Any) $path,
   Any $result,
 ) {
   DEBUG and _debug('Leaf._complete_value', $self->to_string, $result);
