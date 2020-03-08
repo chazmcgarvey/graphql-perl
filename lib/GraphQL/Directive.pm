@@ -213,8 +213,8 @@ in your schema:
 );
 
 method _get_directive_values(
-  HashRef $node,
-  HashRef $variables,
+  $node,
+  $variables,
 ) {
   DEBUG and _debug('_get_directive_values', $self->name, $node, $variables);
   my ($d) = grep $_->{name} eq $self->name, @{$node->{directives} || []};

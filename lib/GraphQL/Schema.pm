@@ -120,9 +120,9 @@ In this schema, get all of either the implementation types
 =cut
 
 fun _expand_type(
-  (Map[StrNameValid, ConsumerOf['GraphQL::Role::Named']]) $map,
-  (InstanceOf['GraphQL::Type']) $type,
-) :ReturnType(ArrayRef[ConsumerOf['GraphQL::Role::Named']]) {
+  $map,
+  $type,
+) {
   return _expand_type($map, $type->of) if $type->can('of');
   my $name = $type->name if $type->can('name');
   return [] if $name and $map->{$name} and $map->{$name} == $type; # seen

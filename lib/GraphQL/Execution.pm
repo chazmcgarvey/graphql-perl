@@ -186,9 +186,9 @@ fun execute(
 }
 
 fun _build_response(
-  ExecutionPartialResult | Promise $result,
-  Bool $force_data = 0,
-) :ReturnType(ExecutionResult | Promise) {
+  $result,
+  $force_data = 0,
+) {
   return $result->then(sub { _build_response(@_) }) if is_Promise($result);
   my @errors = @{$result->{errors} || []};
   +{
@@ -199,22 +199,22 @@ fun _build_response(
 }
 
 fun _wrap_error(
-  Any $error,
-) :ReturnType(ExecutionPartialResult) {
+  $error,
+) {
   return $error if is_ExecutionPartialResult($error);
   +{ errors => [ GraphQL::Error->coerce($error) ] };
 }
 
 fun _build_context(
-  (InstanceOf['GraphQL::Schema']) $schema,
-  ArrayRef[HashRef] $ast,
-  Any $root_value,
-  Any $context_value,
-  Maybe[HashRef] $variable_values,
-  Maybe[Str] $operation_name,
-  Maybe[CodeLike] $field_resolver,
-  Maybe[PromiseCode] $promise_code,
-) :ReturnType(HashRef) {
+  $schema,
+  $ast,
+  $root_value,
+  $context_value,
+  $variable_values,
+  $operation_name,
+  $field_resolver,
+  $promise_code,
+) {
   my %fragments = map {
     ($_->{name} => $_)
   } grep $_->{kind} eq 'fragment', @$ast;
@@ -245,10 +245,10 @@ fun _build_context(
 #  converts with graphql_to_perl (which also validates) to Perl values
 # return { varname => { value => ..., type => $type } }
 fun _variables_apply_defaults(
-  (InstanceOf['GraphQL::Schema']) $schema,
-  HashRef $operation_variables,
-  HashRef $variable_values,
-) :ReturnType(HashRef) {
+  $schema,
+  $operation_variables,
+  $variable_values,
+) {
   my @bad = grep {
     ! lookup_type($operation_variables->{$_}, $schema->name2type)->DOES('GraphQL::Role::Input');
   } keys %$operation_variables;
@@ -273,8 +273,8 @@ fun _variables_apply_defaults(
 }
 
 fun _get_operation(
-  Maybe[Str] $operation_name,
-  ArrayRef[HashRef] $operations,
+  $operation_name,
+  $operations,
 ) {
   DEBUG and _debug('_get_operation', @_);
   if (!$operation_name) {
@@ -288,10 +288,10 @@ fun _get_operation(
 }
 
 fun _execute_operation(
-  HashRef $context,
-  HashRef $operation,
-  Any $root_value,
-) :ReturnType(ExecutionPartialResult | Promise) {
+  $context,
+  $operation,
+  $root_value,
+) {
   my $op_type = $operation->{operationType} || 'query';
   my $type = $context->{schema}->$op_type;
   my ($fields) = $type->_collect_fields(
@@ -318,12 +318,12 @@ fun _execute_operation(
 }
 
 fun _execute_fields(
-  HashRef $context,
-  (InstanceOf['GraphQL::Type']) $parent_type,
-  Any $root_value,
-  ArrayRef $path,
-  Map[StrNameValid,ArrayRef[HashRef]] $fields,
-) :ReturnType(ExecutionPartialResult | Promise) {
+  $context,
+  $parent_type,
+  $root_value,
+  $path,
+  $fields,
+) {
   my (%name2executionresult, @errors);
   my $promise_present;
   DEBUG and _debug('_execute_fields', $parent_type->to_string, $fields, $root_value);
@@ -374,10 +374,10 @@ fun _execute_fields(
 }
 
 fun _merge_hash(
-  ArrayRef[Str] $keys,
-  ArrayRef[ExecutionPartialResult] $values,
-  (ArrayRef[InstanceOf['GraphQL::Error']]) $errors,
-) :ReturnType(ExecutionPartialResult) {
+  $keys,
+  $values,
+  $errors,
+) {
   DEBUG and _debug('_merge_hash', $keys, $values, $errors);
   my @errors = (@$errors, map @{$_->{errors} || []}, @$values);
   my %name2data;
@@ -392,10 +392,10 @@ fun _merge_hash(
 }
 
 fun _promise_for_hash(
-  HashRef $context,
-  HashRef $hash,
-  (ArrayRef[InstanceOf['GraphQL::Error']]) $errors,
-) :ReturnType(Promise) {
+  $context,
+  $hash,
+  $errors,
+) {
   my ($keys, $values) = ([ keys %$hash ], [ values %$hash ]);
   DEBUG and _debug('_promise_for_hash', $keys);
   die "Given a promise in object but no PromiseCode given\n"
@@ -407,11 +407,11 @@ fun _promise_for_hash(
 }
 
 fun _execute_fields_serially(
-  HashRef $context,
-  (InstanceOf['GraphQL::Type']) $parent_type,
-  Any $root_value,
-  ArrayRef $path,
-  Map[StrNameValid,ArrayRef[HashRef]] $fields,
+  $context,
+  $parent_type,
+  $root_value,
+  $path,
+  $fields,
 ) {
   DEBUG and _debug('_execute_fields_serially', $parent_type->to_string, $fields, $root_value);
   # TODO implement
@@ -422,10 +422,10 @@ use constant FIELDNAME2SPECIAL => {
   map { ($_->{name} => $_) } $SCHEMA_META_FIELD_DEF, $TYPE_META_FIELD_DEF
 };
 fun _get_field_def(
-  (InstanceOf['GraphQL::Schema']) $schema,
-  (InstanceOf['GraphQL::Type']) $parent_type,
-  StrNameValid $field_name,
-) :ReturnType(Maybe[HashRef]) {
+  $schema,
+  $parent_type,
+  $field_name,
+) {
   return $TYPE_NAME_META_FIELD_DEF
     if $field_name eq $TYPE_NAME_META_FIELD_DEF->{name};
   return FIELDNAME2SPECIAL->{$field_name}
@@ -435,11 +435,11 @@ fun _get_field_def(
 
 # NB similar ordering as _execute_fields - graphql-js switches
 fun _build_resolve_info(
-  HashRef $context,
-  (InstanceOf['GraphQL::Type']) $parent_type,
-  HashRef $field_def,
-  ArrayRef $path,
-  ArrayRef[HashRef] $nodes,
+  $context,
+  $parent_type,
+  $field_def,
+  $path,
+  $nodes,
 ) {
   {
     field_name => $nodes->[0]{name},
@@ -457,12 +457,12 @@ fun _build_resolve_info(
 }
 
 fun _resolve_field_value_or_error(
-  HashRef $context,
-  HashRef $field_def,
-  ArrayRef[HashRef] $nodes,
-  Maybe[CodeLike] $resolve,
-  Maybe[Any] $root_value,
-  HashRef $info,
+  $context,
+  $field_def,
+  $nodes,
+  $resolve,
+  $root_value,
+  $info,
 ) {
   DEBUG and _debug('_resolve_field_value_or_error', $nodes, $field_def, eval { $JSON->encode($nodes->[0]) });
   my $result = eval {
@@ -477,13 +477,13 @@ fun _resolve_field_value_or_error(
 }
 
 fun _complete_value_catching_error(
-  HashRef $context,
-  (InstanceOf['GraphQL::Type']) $return_type,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  Any $result,
-) :ReturnType(ExecutionPartialResult | Promise) {
+  $context,
+  $return_type,
+  $nodes,
+  $info,
+  $path,
+  $result,
+) {
   DEBUG and _debug('_complete_value_catching_error(before)', $return_type->to_string, $result);
   if ($return_type->isa('GraphQL::Type::NonNull')) {
     return _complete_value_with_located_error(@_);
@@ -501,13 +501,13 @@ fun _complete_value_catching_error(
 }
 
 fun _complete_value_with_located_error(
-  HashRef $context,
-  (InstanceOf['GraphQL::Type']) $return_type,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  Any $result,
-) :ReturnType(ExecutionPartialResult | Promise) {
+  $context,
+  $return_type,
+  $nodes,
+  $info,
+  $path,
+  $result,
+) {
   my $result = eval {
     my $c = _complete_value(@_);
     return $c if !is_Promise($c);
@@ -523,13 +523,13 @@ fun _complete_value_with_located_error(
 }
 
 fun _complete_value(
-  HashRef $context,
-  (InstanceOf['GraphQL::Type']) $return_type,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  Any $result,
-) :ReturnType(ExecutionPartialResult | Promise) {
+  $context,
+  $return_type,
+  $nodes,
+  $info,
+  $path,
+  $result,
+) {
   DEBUG and _debug('_complete_value', $return_type->to_string, $path, $result);
   if (is_Promise($result)) {
     my @outerargs = @_[0..4];
@@ -564,9 +564,9 @@ fun _complete_value(
 }
 
 fun _located_error(
-  Any $error,
-  ArrayRef[HashRef] $nodes,
-  ArrayRef $path,
+  $error,
+  $nodes,
+  $path,
 ) {
   DEBUG and _debug('_located_error', $error);
   $error = GraphQL::Error->coerce($error);
@@ -578,9 +578,9 @@ fun _located_error(
 }
 
 fun _get_argument_values(
-  (HashRef | InstanceOf['GraphQL::Directive']) $def,
-  HashRef $node,
-  Maybe[HashRef] $variable_values = {},
+  $def,
+  $node,
+  $variable_values = {},
 ) {
   my $arg_defs = $def->{args};
   my $arg_nodes = $node->{arguments};
@@ -680,7 +680,7 @@ fun _get_argument_values(
   \%coerced_values;
 }
 
-fun _coerce_for_error(Any $value) {
+fun _coerce_for_error($value) {
   my $ref = ref $value;
   my $ret = 'SCALAR' eq $ref ? $$value
           : 'ARRAY'  eq $ref ? [ map { _coerce_for_error($_) } @$value ]
@@ -691,9 +691,9 @@ fun _coerce_for_error(Any $value) {
 }
 
 fun _coerce_value(
-  Any $argument_node,
-  Maybe[HashRef] $variable_values,
-  Any $default_value,
+  $argument_node,
+  $variable_values,
+  $default_value,
 ) {
   if (ref($argument_node) eq 'SCALAR') {
     # scalar ref means it's a variable. already validated perl but
@@ -722,8 +722,8 @@ fun _coerce_value(
 }
 
 fun _type_will_accept(
-  (ConsumerOf['GraphQL::Role::Input']) $arg_type,
-  (ConsumerOf['GraphQL::Role::Input']) $var_type,
+  $arg_type,
+  $var_type,
 ) {
   return 1 if $arg_type == $var_type;
   $arg_type = $arg_type->of if $arg_type->isa('GraphQL::Type::NonNull');
@@ -739,10 +739,10 @@ fun _type_will_accept(
 # OR it's an object which gets tried for fieldname as method
 # any code gets called with obvious args
 fun _default_field_resolver(
-  CodeLike | HashRef | InstanceOf $root_value,
-  HashRef $args,
-  Any $context,
-  HashRef $info,
+  $root_value,
+  $args,
+  $context,
+  $info,
 ) {
   my $field_name = $info->{field_name};
   my $property = is_HashRef($root_value)

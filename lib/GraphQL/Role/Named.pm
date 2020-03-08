@@ -53,7 +53,7 @@ has to_string => (is => 'lazy', isa => Str, init_arg => undef, builder => sub {
 });
 
 method _from_ast_named(
-  HashRef $ast_node,
+  $ast_node,
 ) {
   (
     name => $ast_node->{name},

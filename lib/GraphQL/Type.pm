@@ -137,9 +137,9 @@ object.
 =cut
 
 method _from_ast_maptype(
-  HashRef $name2type,
-  HashRef $ast_node,
-  Str $key,
+  $name2type,
+  $ast_node,
+  $key,
 ) {
   return if !$ast_node->{$key};
   ($key => sub { [

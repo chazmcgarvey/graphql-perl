@@ -64,12 +64,12 @@ method gotrule (Any $param = undef) {
   return {$self->{parser}{rule} => $param};
 }
 
-method _locate_hash(HashRef $hash) {
+method _locate_hash($hash) {
   my ($line, $column) = @{$self->{parser}->line_column($self->{parser}{farthest})};
   +{ %$hash, location => { line => $line, column => $column } };
 }
 
-fun _merge_hash (Any $param = undef, Any $arraykey = undef) {
+fun _merge_hash ($param = undef, $arraykey = undef) {
   my %def = map %$_, grep ref eq 'HASH', @$param;
   if ($arraykey) {
     my @arrays = grep ref eq 'ARRAY', @$param;
@@ -81,13 +81,13 @@ fun _merge_hash (Any $param = undef, Any $arraykey = undef) {
   \%def;
 }
 
-fun _unescape (Str $str) {
+fun _unescape ($str) {
   # https://facebook.github.io/graphql/June2018/#EscapedCharacter
   $str =~ s|\\(["\\/bfnrt])|"qq!\\$1!"|gee;
   return $str;
 }
 
-fun _blockstring_value (Str $str) {
+fun _blockstring_value ($str) {
   # https://facebook.github.io/graphql/June2018/#BlockStringValue()
   my @lines = split(/(?:\n|\r(?!\r)|\r\n)/s, $str);
   if (1 < @lines) {

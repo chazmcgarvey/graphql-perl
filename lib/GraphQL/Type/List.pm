@@ -119,11 +119,11 @@ method graphql_to_perl(Any $item) :ReturnType(Maybe[ArrayRef]) {
 }
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  ArrayRef $result,
+  $context,
+  $nodes,
+  $info,
+  $path,
+  $result,
 ) {
   # TODO promise stuff
   my $item_type = $self->of;
@@ -144,8 +144,8 @@ method _complete_value(
 }
 
 fun _merge_list(
-  ArrayRef[ExecutionPartialResult] $list,
-) :ReturnType(ExecutionPartialResult) {
+  $list,
+) {
   DEBUG and _debug("List._merge_list", $list);
   my @errors = map @{ $_->{errors} || [] }, @$list;
   my @data = map $_->{data}, @$list;
@@ -154,9 +154,9 @@ fun _merge_list(
 }
 
 fun _promise_for_list(
-  HashRef $context,
-  ArrayRef $list,
-) :ReturnType(Promise) {
+  $context,
+  $list,
+) {
   DEBUG and _debug('_promise_for_list', $list);
   die "Given a promise in list but no PromiseCode given\n"
     if !$context->{promise_code};

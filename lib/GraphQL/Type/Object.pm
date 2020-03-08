@@ -103,10 +103,10 @@ method from_ast(
 }
 
 method _collect_fields(
-  HashRef $context,
-  ArrayRef $selections,
-  Map[StrNameValid,ArrayRef[HashRef]] $fields_got,
-  Map[StrNameValid,Bool] $visited_fragments,
+  $context,
+  $selections,
+  $fields_got,
+  $visited_fragments,
 ) {
   DEBUG and _debug('_collect_fields', $self->to_string, $fields_got, $selections);
   for my $selection (@$selections) {
@@ -146,9 +146,9 @@ method _collect_fields(
 }
 
 method _fragment_condition_match(
-  HashRef $context,
-  HashRef $node,
-) :ReturnType(Bool) {
+  $context,
+  $node,
+) {
   DEBUG and _debug('_fragment_condition_match', $self->to_string, $node);
   return 1 if !$node->{on};
   return 1 if $node->{on} eq $self->name;
@@ -161,9 +161,9 @@ method _fragment_condition_match(
 }
 
 fun _should_include_node(
-  HashRef $variables,
-  HashRef $node,
-) :ReturnType(Bool) {
+  $variables,
+  $node,
+) {
   DEBUG and _debug('_should_include_node', $variables, $node);
   my $skip = $GraphQL::Directive::SKIP->_get_directive_values($node, $variables);
   return '' if $skip and $skip->{if};
@@ -173,11 +173,11 @@ fun _should_include_node(
 }
 
 method _complete_value(
-  HashRef $context,
-  ArrayRef[HashRef] $nodes,
-  HashRef $info,
-  ArrayRef $path,
-  Any $result,
+  $context,
+  $nodes,
+  $info,
+  $path,
+  $result,
 ) {
   if ($self->is_type_of) {
     my $is_type_of = $self->is_type_of->($result, $context->{context_value}, $info);
