@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use base 'Pegex::Receiver';
 use Types::Standard -all;
+use Devel::StrictMode;
 use Function::Parameters;
 use JSON::MaybeXS;
 use Carp;
@@ -62,56 +63,6 @@ method gotrule (Any $param = undef) {
     return {kind => $self->{parser}{rule}, %{$self->_locate_hash(_merge_hash($param, 'fields'))}};
   }
   return {$self->{parser}{rule} => $param};
-}
-
-method _locate_hash(HashRef $hash) {
-  my ($line, $column) = @{$self->{parser}->line_column($self->{parser}{farthest})};
-  +{ %$hash, location => { line => $line, column => $column } };
-}
-
-fun _merge_hash (Any $param = undef, Any $arraykey = undef) {
-  my %def = map %$_, grep ref eq 'HASH', @$param;
-  if ($arraykey) {
-    my @arrays = grep ref eq 'ARRAY', @$param;
-    Carp::confess "More than one array found\n" if @arrays > 1;
-    Carp::confess "No arrays found but \$arraykey given\n" if !@arrays;
-    my %fields = map %$_, @{$arrays[0]};
-    $def{$arraykey} = \%fields;
-  }
-  \%def;
-}
-
-fun _unescape (Str $str) {
-  # https://facebook.github.io/graphql/June2018/#EscapedCharacter
-  $str =~ s|\\(["\\/bfnrt])|"qq!\\$1!"|gee;
-  return $str;
-}
-
-fun _blockstring_value (Str $str) {
-  # https://facebook.github.io/graphql/June2018/#BlockStringValue()
-  my @lines = split(/(?:\n|\r(?!\r)|\r\n)/s, $str);
-  if (1 < @lines) {
-    my $common_indent;
-    for my $line (@lines[1..$#lines]) {
-      my $length = length($line);
-      my $indent = length(($line =~ /^([\t ]*)/)[0] || '');
-      if ($indent < $length && (!defined($common_indent) || $indent < $common_indent)) {
-        $common_indent = $indent;
-      }
-    }
-    if (defined $common_indent) {
-      for my $line (@lines[1..$#lines]) {
-        $line =~ s/^[\t ]{$common_indent}//;
-      }
-    }
-  }
-  my ($start, $end);
-  for ($start = 0; $start < @lines && $lines[$start] =~ /^[\t ]*$/; ++$start) {}
-  for ($end = $#lines; $end >= 0 && $lines[$end] =~ /^[\t ]*$/; --$end) {}
-  @lines = @lines[$start..$end];
-  my $formatted = join("\n", @lines);
-  $formatted =~ s/\\"""/"""/g;
-  return $formatted;
 }
 
 method got_arguments (Any $param = undef) {
@@ -404,6 +355,63 @@ method got_listType (Any $param = undef) {
   $param = $param->[0]; # zap first useless layer
   $param = { type => $param } if ref $param ne 'HASH';
   return [ 'list', $param ];
+}
+
+# Enable type-checking only in STRICT mode until the end of the file.
+use Function::Parameters {
+  fun    => {defaults => 'function', check_argument_types => STRICT},
+  method => {defaults => 'method',   check_argument_types => STRICT},
+};
+use Return::Type::Lexical check => STRICT;
+
+method _locate_hash(HashRef $hash) {
+  my ($line, $column) = @{$self->{parser}->line_column($self->{parser}{farthest})};
+  +{ %$hash, location => { line => $line, column => $column } };
+}
+
+fun _merge_hash (Any $param = undef, Any $arraykey = undef) {
+  my %def = map %$_, grep ref eq 'HASH', @$param;
+  if ($arraykey) {
+    my @arrays = grep ref eq 'ARRAY', @$param;
+    Carp::confess "More than one array found\n" if @arrays > 1;
+    Carp::confess "No arrays found but \$arraykey given\n" if !@arrays;
+    my %fields = map %$_, @{$arrays[0]};
+    $def{$arraykey} = \%fields;
+  }
+  \%def;
+}
+
+fun _unescape (Str $str) {
+  # https://facebook.github.io/graphql/June2018/#EscapedCharacter
+  $str =~ s|\\(["\\/bfnrt])|"qq!\\$1!"|gee;
+  return $str;
+}
+
+fun _blockstring_value (Str $str) {
+  # https://facebook.github.io/graphql/June2018/#BlockStringValue()
+  my @lines = split(/(?:\n|\r(?!\r)|\r\n)/s, $str);
+  if (1 < @lines) {
+    my $common_indent;
+    for my $line (@lines[1..$#lines]) {
+      my $length = length($line);
+      my $indent = length(($line =~ /^([\t ]*)/)[0] || '');
+      if ($indent < $length && (!defined($common_indent) || $indent < $common_indent)) {
+        $common_indent = $indent;
+      }
+    }
+    if (defined $common_indent) {
+      for my $line (@lines[1..$#lines]) {
+        $line =~ s/^[\t ]{$common_indent}//;
+      }
+    }
+  }
+  my ($start, $end);
+  for ($start = 0; $start < @lines && $lines[$start] =~ /^[\t ]*$/; ++$start) {}
+  for ($end = $#lines; $end >= 0 && $lines[$end] =~ /^[\t ]*$/; --$end) {}
+  @lines = @lines[$start..$end];
+  my $formatted = join("\n", @lines);
+  $formatted =~ s/\\"""/"""/g;
+  return $formatted;
 }
 
 1;

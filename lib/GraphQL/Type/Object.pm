@@ -4,8 +4,8 @@ use 5.014;
 use strict;
 use warnings;
 use Moo;
-use GraphQL::Debug qw(_debug);
 use Devel::StrictMode;
+use GraphQL::Debug qw(_debug);
 use Types::Standard -all;
 use GraphQL::Type::Library -all;
 use MooX::Thunking;
@@ -103,11 +103,18 @@ method from_ast(
   );
 }
 
+# Enable type-checking only in STRICT mode until the end of the file.
+use Function::Parameters {
+  fun    => {defaults => 'function', check_argument_types => STRICT},
+  method => {defaults => 'method',   check_argument_types => STRICT},
+};
+use Return::Type::Lexical check => STRICT;
+
 method _collect_fields(
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? ArrayRef : Any) $selections,
-  (STRICT ? Map[StrNameValid,ArrayRef[HashRef]] : Any) $fields_got,
-  (STRICT ? Map[StrNameValid,Bool] : Any) $visited_fragments,
+  HashRef $context,
+  ArrayRef $selections,
+  Map[StrNameValid,ArrayRef[HashRef]] $fields_got,
+  Map[StrNameValid,Bool] $visited_fragments,
 ) {
   DEBUG and _debug('_collect_fields', $self->to_string, $fields_got, $selections);
   for my $selection (@$selections) {
@@ -147,8 +154,8 @@ method _collect_fields(
 }
 
 method _fragment_condition_match(
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? HashRef : Any) $node,
+  HashRef $context,
+  HashRef $node,
 ) :ReturnType(Bool) {
   DEBUG and _debug('_fragment_condition_match', $self->to_string, $node);
   return 1 if !$node->{on};
@@ -162,8 +169,8 @@ method _fragment_condition_match(
 }
 
 fun _should_include_node(
-  (STRICT ? HashRef : Any) $variables,
-  (STRICT ? HashRef : Any) $node,
+  HashRef $variables,
+  HashRef $node,
 ) :ReturnType(Bool) {
   DEBUG and _debug('_should_include_node', $variables, $node);
   my $skip = $GraphQL::Directive::SKIP->_get_directive_values($node, $variables);
@@ -174,10 +181,10 @@ fun _should_include_node(
 }
 
 method _complete_value(
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
-  (STRICT ? HashRef : Any) $info,
-  (STRICT ? ArrayRef : Any) $path,
+  HashRef $context,
+  ArrayRef[HashRef] $nodes,
+  HashRef $info,
+  ArrayRef $path,
   Any $result,
 ) {
   if ($self->is_type_of) {

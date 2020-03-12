@@ -4,9 +4,12 @@ use 5.014;
 use strict;
 use warnings;
 use Moo::Role;
-use Function::Parameters;
 use Devel::StrictMode;
-use Return::Type;
+use Function::Parameters {
+  fun    => {defaults => 'function', check_argument_types => STRICT},
+  method => {defaults => 'method',   check_argument_types => STRICT},
+};
+use Return::Type::Lexical check => STRICT;
 use Types::Standard -all;
 
 our $VERSION = '0.02';
@@ -29,10 +32,10 @@ Allows type constraints for abstract objects.
 =cut
 
 method _complete_value(
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
-  (STRICT ? HashRef : Any) $info,
-  (STRICT ? ArrayRef : Any) $path,
+  HashRef $context,
+  ArrayRef[HashRef] $nodes,
+  HashRef $info,
+  ArrayRef $path,
   Any $result,
 ) {
   my $runtime_type = ($self->resolve_type || \&_default_resolve_type)->(
@@ -49,12 +52,12 @@ method _complete_value(
 }
 
 method _ensure_valid_runtime_type(
-  (STRICT ? (Str | InstanceOf['GraphQL::Type::Object']) : Any) $runtime_type_or_name,
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
-  (STRICT ? HashRef : Any) $info,
+  (Str | InstanceOf['GraphQL::Type::Object']) $runtime_type_or_name,
+  HashRef $context,
+  ArrayRef[HashRef] $nodes,
+  HashRef $info,
   Any $result,
-) :ReturnType(STRICT ? InstanceOf['GraphQL::Type::Object'] : Any) {
+) :ReturnType(InstanceOf['GraphQL::Type::Object']) {
   my $runtime_type = is_InstanceOf($runtime_type_or_name)
     ? $runtime_type_or_name
     : $context->{schema}->name2type->{$runtime_type_or_name};
@@ -75,8 +78,8 @@ method _ensure_valid_runtime_type(
 fun _default_resolve_type(
   Any $value,
   Any $context,
-  (STRICT ? HashRef : Any) $info,
-  (STRICT ? ConsumerOf['GraphQL::Role::Abstract'] : Any) $abstract_type,
+  HashRef $info,
+  (ConsumerOf['GraphQL::Role::Abstract']) $abstract_type,
 ) {
   my @possibles = @{ $info->{schema}->get_possible_types($abstract_type) };
   # TODO promise stuff

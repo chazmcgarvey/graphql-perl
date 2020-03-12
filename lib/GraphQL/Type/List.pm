@@ -119,12 +119,19 @@ method graphql_to_perl(Any $item) :ReturnType(Maybe[ArrayRef]) {
   \@values;
 }
 
+# Enable type-checking only in STRICT mode until the end of the file.
+use Function::Parameters {
+  fun    => {defaults => 'function', check_argument_types => STRICT},
+  method => {defaults => 'method',   check_argument_types => STRICT},
+};
+use Return::Type::Lexical check => STRICT;
+
 method _complete_value(
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? ArrayRef[HashRef] : Any) $nodes,
-  (STRICT ? HashRef : Any) $info,
-  (STRICT ? ArrayRef : Any) $path,
-  (STRICT ? ArrayRef : Any) $result,
+  HashRef $context,
+  ArrayRef[HashRef] $nodes,
+  HashRef $info,
+  ArrayRef $path,
+  ArrayRef $result,
 ) {
   # TODO promise stuff
   my $item_type = $self->of;
@@ -145,8 +152,8 @@ method _complete_value(
 }
 
 fun _merge_list(
-  (STRICT ? ArrayRef[ExecutionPartialResult] : Any) $list,
-) :ReturnType(STRICT ? ExecutionPartialResult : Any) {
+  ArrayRef[ExecutionPartialResult] $list,
+) :ReturnType(ExecutionPartialResult) {
   DEBUG and _debug("List._merge_list", $list);
   my @errors = map @{ $_->{errors} || [] }, @$list;
   my @data = map $_->{data}, @$list;
@@ -155,9 +162,9 @@ fun _merge_list(
 }
 
 fun _promise_for_list(
-  (STRICT ? HashRef : Any) $context,
-  (STRICT ? ArrayRef : Any) $list,
-) :ReturnType(STRICT ? Promise : Any) {
+  HashRef $context,
+  ArrayRef $list,
+) :ReturnType(Promise) {
   DEBUG and _debug('_promise_for_list', $list);
   die "Given a promise in list but no PromiseCode given\n"
     if !$context->{promise_code};

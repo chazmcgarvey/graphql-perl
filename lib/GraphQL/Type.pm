@@ -4,9 +4,9 @@ use 5.014;
 use strict;
 use warnings;
 use Moo;
-use Return::Type;
 use Devel::StrictMode;
-use Function::Parameters;
+use Function::Parameters { method => {defaults => 'method', check_argument_types => STRICT} };
+use Return::Type::Lexical check => STRICT;
 use Types::Standard qw(InstanceOf Any HashRef Str); # if -all causes objects to be class 'Object'!
 with 'GraphQL::Role::Listable';
 
@@ -138,9 +138,9 @@ object.
 =cut
 
 method _from_ast_maptype(
-  (STRICT ? HashRef : Any) $name2type,
-  (STRICT ? HashRef : Any) $ast_node,
-  (STRICT ? Str : Any) $key,
+  HashRef $name2type,
+  HashRef $ast_node,
+  Str $key,
 ) {
   return if !$ast_node->{$key};
   ($key => sub { [

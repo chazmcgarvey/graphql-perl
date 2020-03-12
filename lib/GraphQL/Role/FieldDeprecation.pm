@@ -4,8 +4,8 @@ use 5.014;
 use strict;
 use warnings;
 use Moo::Role;
-use Function::Parameters;
 use Devel::StrictMode;
+use Function::Parameters { method => {defaults => 'method', check_argument_types => STRICT} };
 use Types::Standard -all;
 use JSON::MaybeXS;
 
@@ -43,8 +43,8 @@ sub _fields_deprecation_apply {
 };
 
 method _from_ast_field_deprecate(
-  (STRICT ? Str : Any) $key,
-  (STRICT ? HashRef : Any) $values,
+  Str $key,
+  HashRef $values,
 ) {
   my $value = +{ %{$values->{$key}} };
   my $directives = delete $value->{directives}; # ok as copy
@@ -60,8 +60,8 @@ method _from_ast_field_deprecate(
 }
 
 method _to_doc_field_deprecate(
-  (STRICT ? Str : Any) $line,
-  (STRICT ? HashRef : Any) $value,
+  Str $line,
+  HashRef $value,
 ) {
   return $line if !$value->{is_deprecated};
   $line .= ' @deprecated';

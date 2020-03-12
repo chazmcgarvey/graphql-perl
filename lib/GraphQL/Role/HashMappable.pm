@@ -5,8 +5,9 @@ use strict;
 use warnings;
 use Moo::Role;
 use Types::Standard -all;
-use Function::Parameters;
-use Return::Type;
+use Devel::StrictMode;
+use Function::Parameters { method => {defaults => 'method', check_argument_types => STRICT} };
+use Return::Type::Lexical check => STRICT;
 
 our $VERSION = '0.02';
 

@@ -5,9 +5,9 @@ use strict;
 use warnings;
 use Moo::Role;
 use GraphQL::Debug qw(_debug);
-use Devel::StrictMode;
 use Types::Standard -all;
-use Function::Parameters;
+use Devel::StrictMode;
+use Function::Parameters { method => {defaults => 'method', check_argument_types => STRICT} };
 use JSON::MaybeXS;
 with qw(GraphQL::Role::FieldDeprecation);
 
@@ -33,9 +33,9 @@ Provides code useful to either type of fields.
 =cut
 
 method _make_field_def(
-  (STRICT ? HashRef : Any) $name2type,
-  (STRICT ? Str : Any) $field_name,
-  (STRICT ? HashRef : Any) $field_def,
+  HashRef $name2type,
+  Str $field_name,
+  HashRef $field_def,
 ) {
   DEBUG and _debug('FieldsEither._make_field_def', $field_def);
   require GraphQL::Schema;
@@ -52,9 +52,9 @@ method _make_field_def(
 }
 
 method _from_ast_fields(
-  (STRICT ? HashRef : Any) $name2type,
-  (STRICT ? HashRef : Any) $ast_node,
-  (STRICT ? Str : Any) $key,
+  HashRef $name2type,
+  HashRef $ast_node,
+  Str $key,
 ) {
   my $fields = $ast_node->{$key};
   $fields = $self->_from_ast_field_deprecate($_, $fields) for keys %$fields;
@@ -72,7 +72,7 @@ method _from_ast_fields(
 }
 
 method _description_doc_lines(
-  (STRICT ? Maybe[Str] : Any) $description,
+  Maybe[Str] $description,
 ) {
   DEBUG and _debug('FieldsEither._description_doc_lines', $description);
   return if !$description;
@@ -90,7 +90,7 @@ method _description_doc_lines(
 }
 
 method _make_fieldtuples(
-  (STRICT ? HashRef : Any) $fields,
+  HashRef $fields,
 ) {
   DEBUG and _debug('FieldsEither._make_fieldtuples', $fields);
   map {

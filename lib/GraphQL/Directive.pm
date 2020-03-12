@@ -5,6 +5,7 @@ use strict;
 use warnings;
 use Moo;
 use MooX::Thunking;
+use Devel::StrictMode;
 use Function::Parameters;
 use GraphQL::Debug qw(_debug);
 use Types::Standard -all;
@@ -211,6 +212,10 @@ in your schema:
   $GraphQL::Directive::SKIP,
   $GraphQL::Directive::DEPRECATED,
 );
+
+# Enable type-checking only in STRICT mode until the end of the file.
+use Function::Parameters { method => {defaults => 'method', check_argument_types => STRICT} };
+use Return::Type::Lexical check => STRICT;
 
 method _get_directive_values(
   HashRef $node,
